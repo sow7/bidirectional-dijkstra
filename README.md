@@ -1,4 +1,4 @@
-# bidirectional-dijkstra
+# bidirectional-dijkstra（exact)
 ## Pseudo-code for the bi-directional shortest path search problem
     Input parameters: n, int weight[n][n], start, end
     Output parameter: totalLength
