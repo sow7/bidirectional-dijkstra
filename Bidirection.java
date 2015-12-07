@@ -6,129 +6,98 @@
 package a5wansongsong;
 
 /**
- *
+ * This is my solution for the Bi-directional shortest path problem 
  * @author SONGSONG
  */
 public class Bidirection {
 
-    final static int INF = 99999;
-    static int node = 99999;
+    final static int INF = 99999; //INF means the node is not connect
+    static int meetNode = 0; // This is the node that two directions meet at
 
-    public int BiDijkstra(int[][] weight, int start, int end) {
-        int length = weight.length;
+    /**
+     *
+     * @param graph
+     * @param start
+     * @param end
+     * @return the shortest length between start node and end node
+     */
+    public int BiDijkstra(int[][] graph, int startNode, int endNode) {
+        int length = graph.length;
+        int startIdx = startNode - 1;
+        int endIdx = endNode - 1;
+
+        // startDistance[i] means the distance between startNode and i node, same for endDistance array
         int[] startDistance = new int[length];
-        boolean[] startVisited = new boolean[length];
         int[] endDistance = new int[length];
+
+        // startVisited record whether or not the node already visited by startNode and endNode
+        boolean[] startVisited = new boolean[length];
         boolean[] endVisited = new boolean[length];
+
         for (int i = 0; i < length; i++) {
-            startDistance[i] = weight[start][i];
-            endDistance[i] = weight[end][i];
-            startVisited[i] = false;
-            endVisited[i] = false;
+            startDistance[i] = graph[startIdx][i];
+            endDistance[i] = graph[endIdx][i];
         }
-        startVisited[start] = true;
-        endVisited[end] = true;
-        int startcurr = 0;
-        int endcurr = 0;
-        int totalLength = INF;
-        while (startcurr + endcurr < totalLength) {
-            int startnext = 0;
-            int starttmp = INF;
+        startVisited[startIdx] = true;
+        endVisited[endIdx] = true;
+        int startCurr = 0;
+        int endCurr = 0;
+        int shortestLength = INF;
+
+        // if next shortest distance for startNode plus next shortest distance for endNode is not smaller than current shortestLength, return it
+        while (startCurr + endCurr < shortestLength) {
+            // find next unvisited shortest distance for startNode
+            int startNext = 0;
+            int startTmp = INF;
             for (int i = 0; i < length; i++) {
-                if (!startVisited[i] && startDistance[i] < starttmp) {
-                    starttmp = startDistance[i];
-                    startnext = i;
+                if (!startVisited[i] && startDistance[i] < startTmp) {
+                    startTmp = startDistance[i];
+                    startNext = i;
                 }
             }
-            startcurr = starttmp;
-            startVisited[startnext] = true;
-            int endnext = 0;
-            int endtmp = INF;
+            startCurr = startTmp;
+            startVisited[startNext] = true;
+            
+            // find next unvisited shortest distance for endNode
+            int endNext = 0;
+            int endTmp = INF;
             for (int i = 0; i < length; i++) {
-                if (!endVisited[i] && endDistance[i] < endtmp) {
-                    endtmp = endDistance[i];
-                    endnext = i;
+                if (!endVisited[i] && endDistance[i] < endTmp) {
+                    endTmp = endDistance[i];
+                    endNext = i;
                 }
             }
-            endcurr = endtmp;
-            endVisited[endnext] = true;
-            int min = INF;
+            endCurr = endTmp;
+            endVisited[endNext] = true;
+            
+            // if shortestLength is greater than startDistance[i] + endDistance[i] replace it
             for (int i = 0; i < length; i++) {
-                if (min > (startDistance[i] + endDistance[i])) {
-                    min = startDistance[i] + endDistance[i];
-                    node=i;
+                if (shortestLength > (startDistance[i] + endDistance[i])) {
+                    shortestLength = startDistance[i] + endDistance[i];
+                    meetNode = i + 1;
                 }
             }
-            if (min < totalLength) {
-                totalLength = min;
-            }
+
+            // Update The startDistance Array, if the startDistance[i] is greater than startDistance[startNext] + graph[startNext][i]
             for (int i = 0; i < length; i++) {
-                if (!startVisited[i] && (startDistance[i] > starttmp + weight[startnext][i])) {
-                    startDistance[i] = starttmp + weight[startnext][i];
+                if (!startVisited[i] && (startDistance[i] > startTmp + graph[startNext][i])) {
+                    startDistance[i] = startTmp + graph[startNext][i];
                 }
             }
+
+            // Update The endDistance Array, if the endDistance[i] is greater than endDistance[endnext] + graph[endnext][i]
             for (int i = 0; i < length; i++) {
-                if (!endVisited[i] && (endDistance[i] > endtmp + weight[endnext][i])) {
-                    endDistance[i] = endtmp + weight[endnext][i];
+                if (!endVisited[i] && (endDistance[i] > endTmp + graph[endNext][i])) {
+                    endDistance[i] = endTmp + graph[endNext][i];
                 }
             }
         }
-        return totalLength;
+        return shortestLength;
     }
 
     public static void main(String[] args) {
-//        for(int n=100;n<20000;n=n+200){
-//        //int n = 100;
-//        int[][] graph = new int[n][n];
-//        int i, j, weight;
-//        for (i = 0; i < n; i++) {          //generate the weights
-//            for (j = i; j < n; j++) {
-//                if (j == i) {
-//                    graph[i][j] = 0;
-//                } else {
-//                    weight = (int) (Math.random() * 1000) + 1;
-//                    graph[i][j] = weight;
-//                    graph[j][i] = weight;
-//                }
-//            }
-//        }
-//        long startTime = System.currentTimeMillis();
-//        for (i = 0; i < n * 0.1; i++) {
-//            int start = (int) (Math.random() * n);
-//            int end = (int) (Math.random() * n);
-//            while (end == start) {
-//                end = (int) (Math.random() * n);
-//            }
-//            Problem2 test = new Problem2();
-//            int path = test.BiDijkstra(graph, start, end);
-//            int path1 = test.BiDijkstra(graph, end, start);
-//            if (path != path1) {
-//                System.out.print("the result is different if the start and end node exchange");
-//            }
-//            //System.out.println(start+" "+end+"shortest path is " + path + "  ");
-//        }
-//        long endTime = System.currentTimeMillis();
-//        System.out.println(n+" Runtime: " + (endTime - startTime) + "ms");   //test the runtime of this algorithm
-//        }
-//        int[][] graph1 = {   //Test Case 1
-//            {0, 79, INF, INF, 86, 117, INF, INF},
-//            {79, 0, INF, 178, INF, 83, INF, 55},
-//            {INF, INF, 0, INF, 102, 43, 42, 130},
-//            {INF, 178, INF, 0, 126, INF, 75, 116},
-//            {86, INF, 102, 126, 0, INF, INF, INF},
-//            {117, 83, 43, INF, INF, 0, 193, INF},
-//            {INF, INF, 42, 75, INF, 193, 0, 138},
-//            {INF, 55, 130, 116, INF, INF, 138, 0}
-//        };
-//        int[][] graph2 = {
-//            {0, 1, INF, INF, INF, INF, 2},
-//            {1, 0, 4, INF, INF, INF, INF},
-//            {INF, 4, 0, 4, INF, INF, INF},
-//            {INF, INF, 4, 0, 2, INF, INF},
-//            {INF, INF, INF, 2, 0, 1, INF},
-//            {INF, INF, INF, INF, 1, 0, 5},
-//            {2, INF, INF, INF, INF, 5, 0},};
-        int[][] graph3 = {  //Test Case 2
+        // Test Case
+        int[][] graph = {
             {0, INF, 40, 120, INF, 95, 129, 140, INF, INF, INF},
             {INF, 0, 103, INF, INF, INF, INF, INF, 72, INF, INF},
             {40, 103, 0, 104, INF, 90, INF, 89, INF, INF, 198},
@@ -141,10 +110,12 @@ public class Bidirection {
             {INF, INF, INF, INF, INF, 200, 40, INF, INF, 0, INF},
             {INF, INF, 198, INF, INF, INF, INF, INF, INF, INF, 0}
         };
+        int startNode = 7;
+        int endNode = 9;
         Bidirection test = new Bidirection();
-        int path = test.BiDijkstra(graph3, 6, 8);
-        node++;
-        System.out.println("The meeting node is node "+node+". ");
-        System.out.println("The shortest path from 7 to 9 is " + path + ".");
+        int path = test.BiDijkstra(graph, startNode, endNode);
+        System.out.println("The meeting node is node " + meetNode + ". ");
+        System.out.println("The shortest path from " + startNode + " to " + endNode + " is " + path + ".");
     }
 }
+
